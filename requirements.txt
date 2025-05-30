@@ -1,5 +1,5 @@
 # requirements.txt
 
-unittest2 ; python_version < "3.5"
-No external dependencies currently required.
-Useful if you add packages like pytest, requests, etc.
+# unittest2 ; python_version < "3.5"
+# No external dependencies currently required.
+# Useful if you add packages like pytest, requests, etc.
