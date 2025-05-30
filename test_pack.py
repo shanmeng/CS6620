@@ -7,7 +7,7 @@ Notes: CI/CD Pipeline Part 1
 
 
 import unittest
-from packer import suggest_items
+from PackMyBag import suggest_items
 
 class TestSmartPacker(unittest.TestCase):
     def test_basic_trip(self):
