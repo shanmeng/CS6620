@@ -17,7 +17,7 @@ class TestSmartPacker(unittest.TestCase):
         self.assertIn("phone charger", result["electronics"])
 
     def test_beach_destination(self):
-        result = suggest_items("Bali", 3)
+        result = suggest_items("Bali", 3, weather="hot")
         self.assertIn("sunscreen", result["extras"])
 
     def test_cold_weather(self):
