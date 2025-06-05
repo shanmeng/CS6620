@@ -52,7 +52,7 @@ bash
 python -m unittest discover
 ```
 
-5. I/CD Pipeline
+5. CI/CD Pipeline
 This project includes an automated GitHub Actions workflow, which runs tests automatically on:
 - Push to `main` branch
 - Pull requests
@@ -62,7 +62,7 @@ Test results are viewable under the Actions tab on the repository page.
 
 
 ## Future Steps
-This CI/CD Pipeline Part 1 project will be followed with 
+This CI/CD Pipeline Part 1 project will be followed by 
 - User preferences and saved profiles
 - Real-time weather integration
 - Visual packing checklist
