@@ -22,6 +22,20 @@ It’s a core component of a future travel assistant app.
 
 
 ## How to Use
+1. Clone the repository.
+```
+bash
+
+git clone https://github.com/shanmeng/CS6620.git
+cd CS6620
+```
+2. Install dependencies.
+```
+bash
+
+pip install -r requirements.txt
+```
+3. Run the code.
 ```
 python
 
@@ -31,15 +45,12 @@ items = suggest_items(destination="Tokyo", duration=4, weather="cold")
 print(items)
 ```
 This command discovers and runs all unit tests in the project.
-
-
-## Run Tests
+4. Run the test
 ```
 bash
 python -m unittest discover
 ```
-
-## CI/CD Pipeline
+5. I/CD Pipeline
 This project includes an automated GitHub Actions workflow, which runs tests automatically on:
 - Push to `main` branch
 - Pull requests
