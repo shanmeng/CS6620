@@ -1,7 +1,7 @@
 Name: Shan Meng
-Date: May 29, 2025
+Date: June 25, 2025
 Class: CS6620, Summer
-Notes: CI/CD Pipeline Part 1
+Notes: Updated, CI/CD Pipeline Part 2
 
 
 
@@ -10,6 +10,7 @@ This is a Python module for suggesting what to pack based on the user's:
 - Destination
 - Trip duration
 - Weather conditions
+- Travel pals like kids and/or pets
 
 It’s a core component of a future travel assistant app.
 
@@ -33,6 +34,8 @@ cd CS6620
 ```
 bash
 
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 3. Run the code.
