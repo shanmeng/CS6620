@@ -5,24 +5,35 @@ Notes: Updated, CI/CD Pipeline Part 2
 
 
 
-# PackMyBag – Travel Packing Assistant
-This is a Python module for suggesting what to pack based on the user's:
+# PackMyBag API
+This is a simple Flask-based API that generates travel packing suggestions based on your:
 - Destination
 - Trip duration
-- Weather conditions
-- Travel pals like kids and/or pets
-
-It’s a core component of a future travel assistant app.
+- Traveling with kids and/or pets
 
 
-## What Categories Included
-- Hygiene
-- Clothes, automatically adjusted by duration and weather
-- Electronics
-- Extras, e.g. swimwear, baby items, pet items...
+## Features
+- Fully RESTful: Supports 'GET', 'POST', 'PUT', 'DELETE'.
+- Includes: In-memory data storage, automated tests via pytest, CI/CD workflow with Github Actions, Dockerized setup for API and test environments
 
 
-## How to Use
+## Project structures
+```
+pack-my-bag-api/
+├── api.py                 # Flask API
+├── PackMyBag.py           # Packing suggestion logic
+├── test_api.py            # Pytest test cases
+├── requirements.txt       # Dependencies
+├── Dockerfile.api         # Docker image for API
+├── Dockerfile.test        # Docker image for running tests
+├── run.sh                 # Start API in container
+├── test.sh                # Run tests in container
+├── .github/workflows/
+│   └── python-app.yml     # GitHub Actions workflow
+└── README.md              # You're here!
+```
+
+## Installation 
 1. Clone the repository.
 ```
 bash
@@ -38,34 +49,64 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
-3. Run the code.
-```
-python
-
-from packer import suggest_items
-
-items = suggest_items(destination="Tokyo", duration=4, weather="cold")
-print(items)
-```
-This command discovers and runs all unit tests in the project.
-
-4. Run the test
+3. Run the API locally.
 ```
 bash
-python -m unittest discover
+
+python.api.py
+```
+The server will be available at `http://localhost:5000`.
+
+
+## Testing
+1. Option 1: Run tests locally
+```
+bash
+
+pytest test_api.py
+```
+2. Option 2: Run tests in Docker
+```
+bash
+
+./test.sh
 ```
 
-5. CI/CD Pipeline
-This project includes an automated GitHub Actions workflow, which runs tests automatically on:
-- Push to `main` branch
-- Pull requests
-- Manual trigger via the HitHub "Actions" tab
 
+## Docker
+Build and run the API container:
+```
+bash
+
+./run.sh
+```
+Open: http://localhost:5000
+
+
+## API endpoints
+| Method | Endpoint                   | Description                      |
+|--------|----------------------------|----------------------------------|
+| POST   | `/lists`                   | Generate a packing list          |
+| GET    | `/lists/<list_id>`         | Retrieve a saved list            |
+| PUT    | `/lists/<list_id>`         | Update an existing list          |
+| DELETE | `/lists/<list_id>`         | Delete a saved list              |
+| GET    | `/lists`                   | List all saved list IDs          |
+
+
+## Github Actions
+This project includes an automated GitHub Actions workflow, every push to `main` runs:
+- Dependency installation
+- Unit tests via Pytest
+Workflow file: `.github/workflows/python-app.yml`
 Test results are viewable under the Actions tab on the repository page.
 
 
-## Future Steps
-This CI/CD Pipeline Part 1 project will be followed by 
-- User preferences and saved profiles
-- Real-time weather integration
-- Visual packing checklist
+## Example: POST a JSON to the API
+```
+bash
+
+curl -X POST http://localhost:5000/lists \
+  -H "Content-Type: application/json" \
+  -d '{"destination": "paris", "duration": 5, "weather": "cold"}'
+```
+This sends a POST request with JSON data to the Flask API.
