@@ -39,17 +39,17 @@ def create_list():
         return jsonify({"id": list_id, "items": packing_list}), 201
     
     except Exception as e:
-        return jsonify({"error": "Internet Server Error", "details": str(e)}), 500
+        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
 
 # GET method
 @app.route("/lists/<list_id>", methods=["GET"])
 def get_list(list_id):
     try:
-            if list_id not in saved_lists:
+        if list_id not in saved_lists:
             return {"error": "List not found"}, 404
         return jsonify({"id": list_id, "items": saved_lists[list_id]}), 200
     except Exception as e:
-        return jsonify({"error": "Internet Server Error", "details": str(e)}), 500
+        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
 
 # PUT method
 @app.route("/lists/<list_id>", methods=["PUT"])
@@ -61,7 +61,7 @@ def update_list(list_id):
         saved_lists[list_id].update(updates)
         return {"message": f"List '{list_id}' updated."}, 200
     except Exception as e:
-        return jsonify({"error": "Internet Server Error", "details": str(e)}), 500
+        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
 
 # DELETE method
 @app.route("/lists/<list_id>", methods=["DELETE"])
@@ -72,7 +72,7 @@ def delete_list(list_id):
         del saved_lists[list_id]
         return {"message": f"List '{list_id}' deleted."}, 200
     except Exception as e:
-        return jsonify({"error": "Internet Server Error", "details": str(e)}), 500
+        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
 
 # GET method
 @app.route("/lists", methods=["GET"])
@@ -80,7 +80,7 @@ def list_all():
     try:
         return jsonify({"all_ids": list(saved_lists.keys())}), 200
     except Exception as e:
-        return jsonify({"error": "Internet Server Error", "details": str(e)}), 500
+        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
