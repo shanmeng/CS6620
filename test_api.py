@@ -107,7 +107,7 @@ def test_update_nonexistent_list(client):
 
 # Testing DELETE non-existent ID
 def test_delete_nonexistent_lists(client):
-    response = client.deleted("/lists/ghost_trip")
+    response = client.delete("/lists/ghost_trip")
     assert response.status_code == 404
     assert "not found" in response.get_json()["error"]
 
