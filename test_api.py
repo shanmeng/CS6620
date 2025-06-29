@@ -100,7 +100,7 @@ def test_get_nonexistent_list(client):
 
 # Testing PUT non-existent ID
 def test_update_nonexistent_list(client):
-    response = client.put("/lists/ghost_trip", json=("extra": "sunglasses"})
+    response = client.put("/lists/ghost_trip", json={"extra": "sunglasses"})
     assert response.status_code == 404
     assert "not found" in response.get_json()["error"]
 
