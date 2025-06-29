@@ -2,7 +2,7 @@
 # Name: Shan Meng
 # Date: June 25, 2025
 # Class: CS6620
-# Notes: Assignment CI/CD pipeline part 2
+# Notes: Assignment CI/CD pipeline part 2, updated on Jun 28 based on professor's feedback
 
 
 
