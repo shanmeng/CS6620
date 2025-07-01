@@ -105,7 +105,7 @@ Test results are viewable under the Actions tab on the repository page.
 ```
 bash
 
-curl -X POST http://localhost:5000/lists \
+curl -X POST http://localhost:5050/lists \
   -H "Content-Type: application/json" \
   -d '{"destination": "paris", "duration": 5, "weather": "cold"}'
 ```
