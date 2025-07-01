@@ -55,7 +55,7 @@ bash
 
 python.api.py
 ```
-The server will be available at `http://localhost:5000`.
+The server will be available at `http://localhost:5050`.
 
 
 ## Testing
@@ -80,7 +80,7 @@ bash
 
 ./run.sh
 ```
-Open: http://localhost:5000
+Open: http://localhost:5050
 
 
 ## API endpoints
