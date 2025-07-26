@@ -20,6 +20,17 @@ jobs:
     - name: Set up Docker Compose
       run: sudo apt-get install docker-compose -y
 
+
+    - name: Wait for LocalStack
+      run: |
+        for i in {1..30}; do
+          if curl -f http://localhost:4566/health; then
+            exit 0
+          fi
+          sleep 2
+        done
+        exit 1
+
     - name: Run test stack with Docker Compose
       run: |
         chmod +x test.sh
