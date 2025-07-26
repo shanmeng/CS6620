@@ -11,6 +11,10 @@ services:
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
       - AWS_DEFAULT_REGION=us-east-1
+      - DYNAMODB_ENDPOINT=http://localstack:4566
+      - S3_ENDPOINT=http://localstack:4566
+      - DYNAMODB_TABLE=PackMyBagTable
+      - S3_BUCKET=packmybag-bucket
     depends_on:
       - localstack
     volumes:
@@ -19,9 +23,10 @@ services:
   localstack:
     image: localstack/localstack
     ports:
-      - "4567:4567"
+      - "4567:4566"  # External 4567 mapped to internal 4566
     environment:
       - SERVICES=dynamodb,s3
       - DEFAULT_REGION=us-east-1
     volumes:
       - "./.localstack:/tmp/localstack"
+
