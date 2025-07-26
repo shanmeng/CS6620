@@ -1,25 +1,26 @@
-version: '3.8'
+version: "3.8"
 
 services:
+  localstack:
+    image: localstack/localstack:latest
+    ports:
+      - "4567:4566"
+    environment:
+      - SERVICES=s3,dynamodb
+      - DEFAULT_REGION=us-east-1
+    volumes:
+      - "/tmp/localstack:/tmp/localstack"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+      timeout: 5s
+
   test:
     build:
       context: .
       dockerfile: Dockerfile.test
-    environment:
-      - AWS_ACCESS_KEY_ID=test
-      - AWS_SECRET_ACCESS_KEY=test
-      - AWS_DEFAULT_REGION=us-east-1
     depends_on:
-      - localstack
-    volumes:
-      - .:/app
-
-  localstack:
-    image: localstack/localstack
-    ports:
-      - "4567:4566"
-    environment:
-      - SERVICES=dynamodb,s3
-      - DEFAULT_REGION=us-east-1
-    volumes:
-      - "./.localstack:/tmp/localstack"
+      localstack:
+        condition: service_healthy
