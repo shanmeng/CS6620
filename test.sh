@@ -1,6 +1,9 @@
 #!/bin/bash
-echo "Building test container..."
-docker build -f Dockerfile.test -t packmybag-test .
+echo "Running test stack using docker-compose.test.yml ..."
+docker-compose -f docker-compose.test.yml up --build --abort-on-container-exit
+STATUS=$?
 
-echo "Running tests..."
-docker run --rm packmybag-test
+# Clean up containers
+docker-compose -f docker-compose.test.yml down
+
+exit $STATUS
