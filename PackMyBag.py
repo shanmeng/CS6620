@@ -1,8 +1,8 @@
 '''
 Name: Shan Meng
-Date: May 29, 2025
+Date: July 25, 2025
 Class: CS6620
-Notes: CI/CD Pipeline Part 1, Part 2
+Notes: CI/CD Pipeline Part 1, Part 2, Part 3
 '''
 
 
