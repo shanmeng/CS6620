@@ -17,12 +17,12 @@ app = Flask(__name__)
 dynamodb = boto3.resource(
     "dynamodb",
     region_name="us-east-1",
-    endpoint_url=os.getenv("DYNAMODB_ENDPOINT", "http://localstack:4566")
+    endpoint_url=os.getenv("DYNAMODB_ENDPOINT", "http://localstack:4567")
 )
 s3 = boto3.client(
     "s3",
     region_name="us-east-1",
-    endpoint_url=os.getenv("S3_ENDPOINT", "http://localstack:4566")
+    endpoint_url=os.getenv("S3_ENDPOINT", "http://localstack:4567")
 )
 
 TABLE_NAME = "PackingLists"
