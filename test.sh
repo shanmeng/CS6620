@@ -5,7 +5,7 @@ echo "Starting test stack using docker-compose.test.yml ..."
 docker-compose -f docker-compose.test.yml up --build -d
 
 echo "Waiting for LocalStack to be healthy on port 4567..."
-until curl -sf http://localhost:4567/_localstack/health > /dev/null; do
+until curl -sf http://localhost:4566/_localstack/health > /dev/null; do
   sleep 2
 done
 echo "LocalStack is ready!"
