@@ -1,61 +1,65 @@
 Name: Shan Meng
-Date: June 25, 2025
+Date: July 25, 2025
 Class: CS6620, Summer
-Notes: Updated, CI/CD Pipeline Part 2
+Notes: Updated, CI/CD Pipeline Part 3
 
 
 
 # PackMyBag API
-This is a simple Flask-based API that generates travel packing suggestions based on your:
+This project is a RESTful API designed to generate and manage travel packing lists. based on your:
 - Destination
 - Trip duration
 - Traveling with kids and/or pets
 
 
 ## Features
-- Fully RESTful: Supports 'GET', 'POST', 'PUT', 'DELETE'.
-- Includes: In-memory data storage, automated tests via pytest, CI/CD workflow with Github Actions, Dockerized setup for API and test environments
-
+- Fully RESTful: Supports "GET", "POST", "PUT", "DELETE".
+- It now integrates with DynamoDB for storing data and S3 for archiving list contents.
 
 ## Project structures
 ```
 pack-my-bag-api/
-├── api.py                 # Flask API
-├── PackMyBag.py           # Packing suggestion logic
-├── test_api.py            # Pytest test cases
-├── requirements.txt       # Dependencies
-├── Dockerfile.api         # Docker image for API
-├── Dockerfile.test        # Docker image for running tests
-├── run.sh                 # Start API in container
-├── test.sh                # Run tests in container
-├── .github/workflows/
-│   └── python-app.yml     # GitHub Actions workflow
-└── README.md              # You're here!
+├── api.py                     # Flask API
+├── PackMyBag.py               # Packing suggestion logic
+├── requirements.txt           # Dependencies
+├── test_api.py                # Pytest test cases
+├── Dockerfile.api             # Docker build instructions for the main API container
+├── Dockerfile.test            # Docker build instructions for running tests in a container
+├── docker-compose.yml         # Orchestrates the API, Localstack (mock AWS), etc. for development
+├── docker-compose.test.yml    # Orchestrates everything needed for running tests
+├── run.sh                     # Start the development stack by calling docker-compose.yml
+├── test.sh                    # Run tests and exit with success/failure status
+├── .github/workflows/test.yml # GitHub Actions workflow
+└── README.md                  # You're here!
 ```
 
+
 ## Installation 
-1. Clone the repository.
+1. Clone the Repository.
 ```
 bash
 
 git clone https://github.com/shanmeng/CS6620.git
 cd CS6620
 ```
-2. Install dependencies.
+2. Run the App with Docker Compose
 ```
 bash
 
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+./run.sh
 ```
-3. Run the API locally.
-```
-bash
+This launches the full stack: API + Localstack.
+Once the stack is up, open your browser at: http://localhost:5050
 
-python.api.py
-```
-The server will be available at `http://localhost:5050`.
+3. API endpoints
+| Method | Endpoint                   | Description                      |
+|--------|----------------------------|----------------------------------|
+| POST   | `/lists`                   | Generate and save a packing list |
+| GET    | `/lists/<list_id>`         | Retrieve a saved list            |
+| PUT    | `/lists/<list_id>`         | Update an existing list          |
+| DELETE | `/lists/<list_id>`         | Delete a saved list              |
+| GET    | `/lists`                   | List all saved list IDs          |
+
 
 
 ## Testing
@@ -73,31 +77,16 @@ bash
 ```
 
 
-## Docker
-Build and run the API container:
+## CI/CD with GitHub Actions
+This repo includes an automated Github Actions workflow at
 ```
 bash
 
-./run.sh
+.github/workflows/test.yml
 ```
-Open: http://localhost:5050
-
-
-## API endpoints
-| Method | Endpoint                   | Description                      |
-|--------|----------------------------|----------------------------------|
-| POST   | `/lists`                   | Generate a packing list          |
-| GET    | `/lists/<list_id>`         | Retrieve a saved list            |
-| PUT    | `/lists/<list_id>`         | Update an existing list          |
-| DELETE | `/lists/<list_id>`         | Delete a saved list              |
-| GET    | `/lists`                   | List all saved list IDs          |
-
-
-## Github Actions
-This project includes an automated GitHub Actions workflow, every push to `main` runs:
-- Dependency installation
-- Unit tests via Pytest
-Workflow file: `.github/workflows/python-app.yml`
+Every push to `main` will:
+- Build the stack with Docker Compose
+- Run the full test suite against Localstack
 Test results are viewable under the Actions tab on the repository page.
 
 
@@ -110,3 +99,6 @@ curl -X POST http://localhost:5050/lists \
   -d '{"destination": "paris", "duration": 5, "weather": "cold"}'
 ```
 This sends a POST request with JSON data to the Flask API.
+
+## Requirements
+All dependencies are defined in requirements.txt and included in Docker containers.
