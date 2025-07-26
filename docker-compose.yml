@@ -23,7 +23,7 @@ services:
   localstack:
     image: localstack/localstack
     ports:
-      - "4567:4567"
+      - "4567:4566"
     environment:
       - SERVICES=dynamodb,s3
       - DEFAULT_REGION=us-east-1
