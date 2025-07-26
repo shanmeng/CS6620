@@ -11,8 +11,8 @@ import boto3
 from api import app
 
 # Use the Localstack endpoints
-DYNAMODB_ENDPOINT = os.environ.get("DYNAMODB_ENDPOINT", "http://localhost:4566")
-S3_ENDPOINT = os.environ.get("S3_ENDPOINT", "http://localhost:4566")
+DYNAMODB_ENDPOINT = os.environ.get("DYNAMODB_ENDPOINT", "http://localhost:4567")
+S3_ENDPOINT = os.environ.get("S3_ENDPOINT", "http://localhost:4567")
 TABLE_NAME = os.environ.get("DYNAMODB_TABLE", "PackMyBagTable")
 BUCKET_NAME = os.environ.get("S3_BUCKET", "packmybag-bucket")
 
