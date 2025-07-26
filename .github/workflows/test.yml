@@ -29,4 +29,5 @@ jobs:
       if: always()
       run: |
         fuser -k /tmp/localstack || true
-        rm -rf /tmp/localstack
+        sudo rm -rf /tmp/localstack
+
