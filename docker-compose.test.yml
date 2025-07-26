@@ -11,8 +11,9 @@ services:
     volumes:
       - "/tmp/localstack:/tmp/localstack"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:4567/_localstack/health"]
       interval: 30s
+      start_period: 5s
       timeout: 10s
       retries: 5
 
