@@ -1,3 +1,4 @@
+# docker-compose.test.yml
 version: "3.8"
 
 services:
@@ -26,48 +27,29 @@ services:
     depends_on:
       localstack:
         condition: service_healthy
-    # The 'entrypoint' key is indented 2 spaces from 'test:'
-    # The '|' starts the multi-line string.
-    # All lines *after* '|' must be indented more than 'entrypoint:'.
-    # A common convention is to indent by 2 more spaces (total 4 spaces from service level).
+    # Start of entrypoint definition
+    # 'entrypoint' is indented 4 spaces from the start of 'test:'
     entrypoint: |
+      # The bash command string starts here. It must be indented MORE than 'entrypoint:'.
+      # I am using 6 spaces for this line.
       /bin/bash -c "
+        # The python code block is indented 8 spaces (2 more than the bash line).
         python -c '
 import os
 import time
 import requests
 import sys
 
-# Get endpoint from environment variable, fallback for local testing
+# Get endpoint from environment variable, fallback for localstack service
+# This line is indented 10 spaces.
 endpoint = os.getenv(\"DYNAMODB_ENDPOINT\", \"http://localstack:4566\")
 print(f\"Waiting for LocalStack DynamoDB and S3 at {endpoint}...\")
 max_attempts = 30 # Approx 5 minutes (30 attempts * 10 seconds/attempt)
 attempts = 0
 while attempts < max_attempts:
     try:
+        # These lines are indented 12 spaces.
         response = requests.get(f\"{endpoint}/_localstack/health?services=s3,dynamodb\")
         response.raise_for_status() # Raise an exception for HTTP errors (4xx or 5xx)
         health_data = response.json().get(\"services\", {})
-        s3_status = health_data.get(\"s3\")
-        dynamodb_status = health_data.get(\"dynamodb\")
-
-        if s3_status == \"running\" and dynamodb_status == \"running\":
-            print(\"LocalStack S3 and DynamoDB are running!\")
-            sys.exit(0) # Exit Python script successfully
-        else:
-            print(f\"LocalStack services not fully ready. S3: {s3_status}, DynamoDB: {dynamodb_status}. Retrying...\")
-    except requests.exceptions.ConnectionError:
-        print(\"Connection error, retrying...\")
-    except requests.exceptions.RequestException as e:
-        print(f\"Request failed: {e}. Retrying...\")
-    
-    time.sleep(10) # Wait 10 seconds before next attempt
-    attempts += 1
-
-print(\"LocalStack services did not become healthy in time. Exiting.\")
-sys.exit(1) # Exit Python script with failure
-
-        '
-        # The '&&' ensures pytest only runs if the python script exited successfully (exit code 0)
-        && pytest test_api.py
-      "
+        s3_status = health_
