@@ -135,4 +135,3 @@ def test_delete_existing(client):
 def test_delete_invalid_target(client):
     response = client.delete("/lists/invalid-id")
     assert response.status_code == 404
-
