@@ -8,14 +8,16 @@ services:
     environment:
       - SERVICES=s3,dynamodb
       - DEFAULT_REGION=us-east-1
+      - DOCKER_HOST_ADDRESS=localstack
+      - DEBUG=1
     volumes:
       - "/tmp/localstack:/tmp/localstack"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
-      interval: 10s
-      start_period: 30s
-      timeout: 10s
-      retries: 5
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health?services=s3,dynamodb"]
+      interval: 15s
+      start_period: 60s
+      timeout: 15s
+      retries: 20
 
   test:
     build:
@@ -24,3 +26,5 @@ services:
     depends_on:
       localstack:
         condition: service_healthy
+    entrypoint: ["/bin/bash", "-c", "python -c 'import os; import time; import requests; endpoint = os.getenv(\"DYNAMODB_ENDPOINT\"); print(f\"Waiting for LocalStack DynamoDB at {endpoint}...\"); while True: try: response = requests.get(f\"{endpoint}/_localstack/health?services=s3,dynamodb\"); response.raise_for_status(); if response.json().get(\"services\", {}).get(\"s3\") == \"running\" and response.json().get(\"services\", {}).get(\"dynamodb\") == \"running\": print(\"LocalStack S3 and DynamoDB are running!\"); break; else: print(\"LocalStack services not fully ready. Retrying...\"); time.sleep(5); except requests.exceptions.ConnectionError: print(\"Connection error, retrying...\"); time.sleep(5); except requests.exceptions.RequestException as e: print(f\"Request failed: {e}. Retrying...\"); time.sleep(5);'] && pytest test_api.py"
+
