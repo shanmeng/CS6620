@@ -26,5 +26,44 @@ services:
     depends_on:
       localstack:
         condition: service_healthy
-    entrypoint: ["/bin/bash", "-c", "python -c 'import os; import time; import requests; endpoint = os.getenv(\"DYNAMODB_ENDPOINT\"); print(f\"Waiting for LocalStack DynamoDB at {endpoint}...\"); while True: try: response = requests.get(f\"{endpoint}/_localstack/health?services=s3,dynamodb\"); response.raise_for_status(); if response.json().get(\"services\", {}).get(\"s3\") == \"running\" and response.json().get(\"services\", {}).get(\"dynamodb\") == \"running\": print(\"LocalStack S3 and DynamoDB are running!\"); break; else: print(\"LocalStack services not fully ready. Retrying...\"); time.sleep(5); except requests.exceptions.ConnectionError: print(\"Connection error, retrying...\"); time.sleep(5); except requests.exceptions.RequestException as e: print(f\"Request failed: {e}. Retrying...\"); time.sleep(5);'] && pytest test_api.py"
+    # Corrected entrypoint using YAML multi-line string literal
+    entrypoint: |
+      /bin/bash -c "
+        python -c '
+import os
+import time
+import requests
+import sys
 
+endpoint = os.getenv(\"DYNAMODB_ENDPOINT\")
+print(f\"Waiting for LocalStack DynamoDB and S3 at {endpoint}...\")
+max_attempts = 30 # ~5 minutes at 10s sleep
+attempts = 0
+while attempts < max_attempts:
+    try:
+        response = requests.get(f\"{endpoint}/_localstack/health?services=s3,dynamodb\")
+        response.raise_for_status()
+        health_data = response.json().get(\"services\", {})
+        s3_status = health_data.get(\"s3\")
+        dynamodb_status = health_data.get(\"dynamodb\")
+
+        if s3_status == \"running\" and dynamodb_status == \"running\":
+            print(\"LocalStack S3 and DynamoDB are running!\")
+            sys.exit(0) # Exit success
+        else:
+            print(f\"LocalStack services not fully ready. S3: {s3_status}, DynamoDB: {dynamodb_status}. Retrying...\")
+    except requests.exceptions.ConnectionError:
+        print(\"Connection error, retrying...\")
+    except requests.exceptions.RequestException as e:
+        print(f\"Request failed: {e}. Retrying...\")
+    
+    time.sleep(10) # Wait 10 seconds before next attempt
+    attempts += 1
+
+print(\"LocalStack services did not become healthy in time. Exiting.\")
+sys.exit(1) # Exit failure
+        '
+        # Run pytest if the Python script succeeds (exit code 0)
+        # The '&&' ensures pytest only runs if the python script exited successfully
+        && pytest test_api.py
+      "
