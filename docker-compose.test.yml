@@ -37,6 +37,8 @@ services:
         python -c '
 # All lines of the Python script should be indented consistently by 2 more spaces
 # than the line above (total 10 spaces from the left margin).
+
+
 import os
 import time
 import requests
