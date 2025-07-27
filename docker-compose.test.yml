@@ -37,7 +37,7 @@ services:
           endpoint = os.getenv(\"DYNAMODB_ENDPOINT\", \"http://localstack:4566\")
           print(f\"Waiting for LocalStack DynamoDB and S3 at {endpoint}...\")
 
-          max_attempts = 40 # Increased attempts to 40 (40 * 5s = 200s = ~3.3 minutes wait)
+          max_attempts = 40 # 40 * 5s = 200s = ~3.3 minutes wait
           attempts = 0
           while attempts < max_attempts:
               try:
