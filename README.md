@@ -101,3 +101,14 @@ This sends a POST request with JSON data to the Flask API.
 
 ## Requirements
 All dependencies are defined in requirements.txt and included in Docker containers.
+
+
+
+## AI Assistance / External Tools Used
+This project utilized AI assistance for debugging and clarifying concepts.
+Tool used: Google Gemini
+Prompts:
+- "Can you help troubleshoot LocalStack errors?"
+- "How can I wait for LocalStack to become healthy in a Docker Compose test container?"
+- "How to fix 'ERROR: for test Container '...'' in Docker Compose with LocalStack health checks?"
+All AI-generated responses were reviewed and modified by me.
