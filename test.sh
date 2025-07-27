@@ -4,7 +4,10 @@ set -e
 echo "Starting test stack using docker-compose.test.yml ..."
 docker-compose -f docker-compose.test.yml up --build -d
 
-echo "LocalStack should be ready based on docker-compose healthcheck."
+echo "Waiting for LocalStack service to become healthy..."
+docker-compose -f docker-compose.test.yml wait localstack
+
+echo "LocalStack is ready and healthy!"
 
 echo "Running tests..."
 docker-compose -f docker-compose.test.yml run --rm test
