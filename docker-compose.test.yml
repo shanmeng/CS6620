@@ -1,4 +1,3 @@
-# docker-compose.test.yml
 version: '3.8'
 
 services:
@@ -12,7 +11,7 @@ services:
       - DOCKER_HOST_ADDRESS=localstack
       - DEBUG=1
     volumes:
-      - "./.localstack:/tmp/localstack" # Ensure this path is correct if different on your host
+      - "./.localstack:/tmp/localstack"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health?services=s3,dynamodb"]
       interval: 15s
