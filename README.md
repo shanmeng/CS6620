@@ -61,7 +61,6 @@ Once the stack is up, open your browser at: http://localhost:5050
 | GET    | `/lists`                   | List all saved list IDs          |
 
 
-
 ## Testing
 1. Option 1: Run tests locally
 ```
@@ -85,8 +84,8 @@ bash
 .github/workflows/test.yml
 ```
 Every push to `main` will:
-- Build the stack with Docker Compose
-- Run the full test suite against Localstack
+- Build the stack with Docker Compose, ensuring LocalStack services are ready.
+- Run the full test suite against Localstack mock AWS environment.
 Test results are viewable under the Actions tab on the repository page.
 
 
