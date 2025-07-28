@@ -53,14 +53,12 @@ def test_post_and_get_list(client):
     data = response.get_json()
     list_id = data["id"]
     
- 	# Validate data is stored in both DB and S3
     db_item = get_dynamodb_item(list_id)
     s3_content = get_s3_object_content(list_id)
     assert db_item is not None
     assert s3_content is not None
     assert db_item["items"] == s3_content["items"]
 
-	# Validate the GET request retrieves the data correctly
     get_response = client.get(f"/lists/{list_id}")
     assert get_response.status_code == 200
 
