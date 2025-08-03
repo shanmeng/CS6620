@@ -27,6 +27,10 @@ services:
     environment:
       - SERVICES=dynamodb,s3
       - DEFAULT_REGION=us-east-1
+    
+    # Updated after TA's feedback: Using a named volume to let Docker manage the localstack_data volume internally.
     volumes:
-      - "./.localstack:/tmp/localstack"
+      - localstack_data:/tmp/localstack
 
+volumes:
+  localstack_data:
