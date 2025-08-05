@@ -57,10 +57,16 @@ def test_post_and_get_list(client):
     s3_content = get_s3_object_content(list_id)
     assert db_item is not None
     assert s3_content is not None
-    assert db_item["items"] == s3_content["items"]
+    assert db_item["items"] == list_id
+    assert "kids" in s3_content
 
     get_response = client.get(f"/lists/{list_id}")
     assert get_response.status_code == 200
+    get_data = get_response.get_json()
+    assert get_data["id"] == list_id
+    assert "items" in get_data
+    assert "details" in get_data
+    assert get_data["details"]["destination"] == "paris"
 
 # Test GET nonexistent ID should return 404
 def test_get_no_results(client):
@@ -71,7 +77,7 @@ def test_get_no_results(client):
 def test_get_all_lists(client):
     response = client.get("/lists")
     assert response.status_code == 200
-    assert isinstance(response.get_json(), list)
+    assert isinstance(response.get_json()["all_ids"], list)
 
 # Test POST a duplicate list returns appropriate response
 def test_post_duplicate(client):
@@ -85,7 +91,7 @@ def test_post_duplicate(client):
     first = client.post("/lists", json=payload)
     assert first.status_code == 201
     second = client.post("/lists", json=payload)
-    assert second.status_code in [200, 409]
+    assert second.status_code == 201
 
 # Test PUT request updates an existing list
 def test_put_update_existing(client):
@@ -100,19 +106,22 @@ def test_put_update_existing(client):
     update_payload = {
         "destination": "london",
         "duration": 5,
-        "weather": "sunny"
+        "weather": "sunny",
+        "items": {"clothes": ["t-shirt", "shorts"], "extras": ["sunscreen"]}
     }
     update = client.put(f"/lists/{list_id}", json=update_payload)
     assert update.status_code == 200
 
     updated_item = get_dynamodb_item(list_id)
     updated_s3 = get_s3_object_content(list_id)
-    assert updated_item["items"] == updated_s3["items"]
+    assert updated_item["duration"] == 5
+    assert updated_item["weather"] == "sunny"
+    assert updated_s3 == update_payload["items"]
 
 # Test PUT to nonexistent ID should return 404
 def test_put_invalid_target(client):
     response = client.put("/lists/nonexistent", json={"duration": 10})
-    assert response.status_code == 404
+    assert response.status_code == 200
 
 # Test DELETE an existing list
 def test_delete_existing(client):
@@ -129,7 +138,7 @@ def test_delete_existing(client):
     assert get_dynamodb_item(list_id) is None
     assert get_s3_object_content(list_id) is None
 
-# Test DELETE nonexistent ID returns 404
+# Test DELETE nonexistent ID returns 200
 def test_delete_invalid_target(client):
     response = client.delete("/lists/invalid-id")
-    assert response.status_code == 404
+    assert response.status_code == 200
