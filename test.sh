@@ -8,5 +8,5 @@ echo "Test finished. Cleaning up test stack..."
 docker compose -f docker-compose.test.yml down -v
 
 echo "Cleaning up leftover localstack directory..."
-fuser -k /tmp/localstack || true
-rm -rf /tmp/localstack || true
+fuser -k /var/lib/localstack || true
+rm -rf /var/lib/localstack || true
