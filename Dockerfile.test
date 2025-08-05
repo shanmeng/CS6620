@@ -7,4 +7,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+COPY wait_for_localstack.py wait_for_localstack.py
+
 CMD ["pytest", "test_api.py"]
