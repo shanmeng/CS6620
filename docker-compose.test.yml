@@ -27,7 +27,9 @@ services:
       localstack:
         condition: service_healthy
     entrypoint: >
-      /bin/bash -c "python -c '
+      /bin/bash -c "python wait_for_localstack.py && pytest test_api.py"
+  
+      '''
         import os
         import time
         import requests
@@ -60,4 +62,6 @@ services:
               
         print(\"LocalStack services did not become healthy in time after multiple attempts. Exiting.\")
         sys.exit(1)
-      ' && pytest test_api.py"
+        '''
+        
+
