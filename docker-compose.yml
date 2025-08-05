@@ -30,7 +30,7 @@ services:
     
     # Updated after TA's feedback: Using a named volume to let Docker manage the localstack_data volume internally.
     volumes:
-      - localstack_data:/tmp/localstack
+      - localstack_data:/var/lib/localstack
 
 volumes:
   localstack_data:
