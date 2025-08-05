@@ -11,7 +11,7 @@ services:
       - DOCKER_HOST_ADDRESS=localstack
       - DEBUG=1
     volumes:
-      - "./.localstack:/tmp/localstack"
+      - "./.localstack:/var/lib/localstack"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health?services=s3,dynamodb"]
       interval: 15s
