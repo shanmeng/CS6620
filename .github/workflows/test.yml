@@ -10,16 +10,14 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_DEFAULT_REGION: us-east-1
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - name: Set dummy AWS credentials
-        run: |
-          echo "AWS_ACCESS_KEY_ID=test" >> $GITHUB_ENV
-          echo "AWS_SECRET_ACCESS_KEY=test" >> $GITHUB_ENV
-          echo "AWS_DEFAULT_REGION=us-east-1" >> $GITHUB_ENV
 
       - name: Set up Docker Compose
         run: sudo apt-get install docker-compose -y
