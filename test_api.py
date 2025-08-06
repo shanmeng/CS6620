@@ -57,7 +57,7 @@ def test_post_and_get_list(client):
     s3_content = get_s3_object_content(list_id)
     assert db_item is not None
     assert s3_content is not None
-    assert db_item["items"] == list_id
+    assert db_item["destination"] == "paris"
     assert "kids" in s3_content
 
     get_response = client.get(f"/lists/{list_id}")
@@ -121,7 +121,7 @@ def test_put_update_existing(client):
 # Test PUT to nonexistent ID should return 404
 def test_put_invalid_target(client):
     response = client.put("/lists/nonexistent", json={"duration": 10})
-    assert response.status_code == 200
+    assert response.status_code == 404
 
 # Test DELETE an existing list
 def test_delete_existing(client):
