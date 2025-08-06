@@ -59,7 +59,7 @@ def create_list():
         weather = data.get("weather", "mild")
         with_kids = data.get("with_kids", False)
         with_pet = data.get("with_pet", False)
-        list_id = data.get("id", f"{destination.lower()}_{duration}"
+        list_id = data.get("id", f"{destination.lower()}_{duration}")
 
         if not destination:
             return jsonify({"error": "Missing 'destination'"}), 400
