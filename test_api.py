@@ -39,7 +39,7 @@ def get_dynamodb_item(item_id):
 # Helper function to retrieve object content from S3
 def get_s3_object_content(item_id):
     try:
-        response = s3_client.get_object(Bucket=BUCKET_NAME, key=item_id)
+        response = s3_client.get_object(Bucket=BUCKET_NAME, Key=item_id)
         content = response["Body"].read().decode("utf-8")
         return json.loads(content)
     except ClientError as e:
