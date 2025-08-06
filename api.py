@@ -108,19 +108,17 @@ def get_list(list_id):
 def update_list(list_id):
     try:
         data = request.get_json()
-        update_fields = {k: v for k, v in data.items() if k != "id"}
 
-        # Update DynamoDB
-        update_expr = "SET " + ", ".join(f"{k}=:{k}" for k in update_fields)
-        expr_values = {f":{k}": v for k, v in update_fields.items()}
+        update_expr = "SET duration = :d"
+        expr_values = {":d": data["duration"]}
 
         table.update_item(
             Key={"id": list_id},
             UpdateExpression=update_expr,
+            ExpressionAttributeNames={'#dur': 'duration'},
             ExpressionAttributeValues=expr_values
         )
 
-        # Optionally update S3
         if "items" in data:
             s3.put_object(
                 Bucket=BUCKET_NAME,
