@@ -27,31 +27,54 @@ pack-my-bag-api/
 ├── Dockerfile.test            # Docker build instructions for running tests in a container
 ├── docker-compose.yml         # Orchestrates the API, Localstack (mock AWS), etc. for development
 ├── docker-compose.test.yml    # Orchestrates everything needed for running tests
+├── wait_for_localstack.py     # Utility script to ensure application waits until the localstack container is ready
 ├── run.sh                     # Start the development stack by calling docker-compose.yml
 ├── test.sh                    # Run tests and exit with success/failure status
 ├── .github/workflows/test.yml # GitHub Actions workflow
 └── README.md                  # You're here!
 ```
 
-
-## Installation 
+## Set up and how to use
 1. Clone the Repository.
 ```
 bash
 
 git clone https://github.com/shanmeng/CS6620.git
+```
+
+2. Navigate into the project directory.
+```
+bash
+
 cd CS6620
 ```
-2. Run the App with Docker Compose
+
+3. Make the shell script executable.
+This one-time step is required on macOS and Linux to give your system permission to run the scripts.
+```
+bash
+
+chmod +x ./run.sh
+chmod +x ./test.sh
+```
+
+4. Running the Application.
 ```
 bash
 
 ./run.sh
 ```
-This launches the full stack: API + Localstack.
-Once the stack is up, open your browser at: http://localhost:5050
+The script uses docker-compose.yml to build and start the container.
 
-3. API endpoints
+5. Running the Test.
+```
+bash
+
+./test.sh
+```
+The script uses docker-compose.test.yml to build a clean test environment, run all tests, and then automatically shut down the containers.
+
+6. API endpoints
 | Method | Endpoint                   | Description                      |
 |--------|----------------------------|----------------------------------|
 | POST   | `/lists`                   | Generate and save a packing list |
@@ -59,21 +82,6 @@ Once the stack is up, open your browser at: http://localhost:5050
 | PUT    | `/lists/<list_id>`         | Update an existing list          |
 | DELETE | `/lists/<list_id>`         | Delete a saved list              |
 | GET    | `/lists`                   | List all saved list IDs          |
-
-
-## Testing
-1. Option 1: Run tests locally
-```
-bash
-
-pytest test_api.py
-```
-2. Option 2: Run tests in Docker
-```
-bash
-
-./test.sh
-```
 
 
 ## CI/CD with GitHub Actions
@@ -87,7 +95,6 @@ Every push to `main` will:
 - Build the stack with Docker Compose, ensuring LocalStack services are ready.
 - Run the full test suite against Localstack mock AWS environment.
 Test results are viewable under the Actions tab on the repository page.
-
 
 ## Example: POST a JSON to the API
 ```
@@ -107,7 +114,7 @@ All dependencies are defined in requirements.txt and included in Docker containe
 ## AI Assistance / External Tools Used
 This project utilized AI assistance for debugging and clarifying concepts.
 
-Tool used: Google Gemini
+Tool used: Google Gemini, GitHub "Explain Error" feature.
 
 Prompts:
 - "Can you help troubleshoot LocalStack errors?"
