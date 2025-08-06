@@ -113,20 +113,20 @@ def update_list(list_id):
         item_exists = table.get_item(Key={"id": list_id}).get("Item")
         if not item_exists:
             return jsonify({"error": f"List with ID {list_id} not found"}), 404
-        
-        update_expr = "SET " + ", ".join(f"{k}=:{k}" for k in update_fields) if k != "items")
 
-        serializer = TypeSerializer()
-        expr_values = {f":{k}": serializer.serialize(v) for k, v in update_fields.items()} if k != "items"
+        non_s3_fields = {k: v for k, v in update_fields.items() if k!= "items"}
+        if non_s3_fields:
+            update_expr = "SET " + ", ".join(f"{k}=:{k}" for k in non_s3_fields
+            serializer = TypeSerializer()
+            expr_values = {f":{k}": serializer.serialize(v) for k, v in non_s3_fields.items()}
 
-        if expr_values:
             table.update_item(
                 Key={"id": list_id},
                 UpdateExpression=update_expr,
                 ExpressionAttributeValues=expr_values
             )
 
-        if "items" in updated_fields:
+        if "items" in update_fields:
             s3.put_object(
                 Bucket=BUCKET_NAME,
                 Key=f"{list_id}.json",
