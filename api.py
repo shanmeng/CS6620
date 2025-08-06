@@ -82,6 +82,7 @@ def create_list():
             Bucket=BUCKET_NAME,
             Key=f"{list_id}.json",
             Body=json.dumps(packing_list)
+            ContentType="application/json"
         )
 
         return jsonify({"id": list_id, "items": packing_list}), 201
@@ -115,11 +116,12 @@ def update_list(list_id):
         if not item_exists:
             return jsonify({"error": f"List with ID {list_id} not found"}), 404
 
-        non_s3_fields = {k: v for k, v in update_fields.items() if k!= "items"}
-        if non_s3_fields:
-            update_expr = "SET " + ", ".join(f"{k}=:{k}" for k in non_s3_fields)
+        dynamo_fields = {k: v for k, v in update_fields.items() if k != "items"}
+
+        if dynamo_fields:
+            update_expr = "SET " + ", ".join(f"{k}=:{k}" for k in dynamo_fields)
             serializer = TypeSerializer()
-            expr_values = {f":{k}": serializer.serialize(v) for k, v in non_s3_fields.items()}
+            expr_values = {f":{k}": serializer.serialize(v) for k, v in dynamo_fields.items()}
 
             table.update_item(
                 Key={"id": list_id},
@@ -132,6 +134,7 @@ def update_list(list_id):
                 Bucket=BUCKET_NAME,
                 Key=f"{list_id}.json",
                 Body=json.dumps(update_fields["items"])
+                ContentType= "application/json"
             )
         return {"message": f"List {list_id} updated successfully"}, 200
     except ClientError as e:
