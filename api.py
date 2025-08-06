@@ -59,7 +59,7 @@ def create_list():
         weather = data.get("weather", "mild")
         with_kids = data.get("with_kids", False)
         with_pet = data.get("with_pet", False)
-        list_id = data.get("id") or f"{destination.lower()}_{duration}_{os.urandom(4).hex()}"
+        list_id = data.get("id", f"{destination.lower()}_{duration}"
 
         if not destination:
             return jsonify({"error": "Missing 'destination'"}), 400
@@ -125,13 +125,23 @@ def update_list(list_id):
         dynamo_fields = {k: v for k, v in data.items() if k != "items"}
 
         if dynamo_fields:
-            update_expr = "SET " + ", ".join(f"{k}=:{k}" for k in dynamo_fields)
-            expr_values = {f":{k}": v for k, v in dynamo_fields.items()}
-
+            update_expression_parts = []
+            expression_attribute_names = {}
+            expression_attribute_values = {}
+            
+            for i, (key, value) in enumerate(dynamo_fields.items()):
+                name_placeholder = f"#key{i}"
+                value_placeholder = f":val{i}"
+                update_expression_parts.append(f"{name_placeholder} = {value_placeholder}")
+                expression_attribute_names[name_placeholder] = key
+                expression_attribute_values[value_placeholder] = value
+            
+            update_expression = "SET " + ", ".join(update_expression_parts)
             table.update_item(
                 Key={"id": list_id},
-                UpdateExpression=update_expr,
-                ExpressionAttributeValues=expr_values
+                UpdateExpression=update_expression,
+                ExpressionAttributeNames=expression_attribute_names,
+                ExpressionAttributeValues=expression_attribute_values
             )
 
         if "items" in data:
