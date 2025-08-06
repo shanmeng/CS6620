@@ -9,7 +9,6 @@ import boto3
 import json
 import os
 from botocore.exceptions import ClientError
-from boto3.dynamodb.types import TypeSerializer
 
 app = Flask(__name__)
 
@@ -44,7 +43,7 @@ def ensure_resources():
     try:
         s3.create_bucket(Bucket=BUCKET_NAME)
     except ClientError as e:
-        if "BucketAlreadyOwnedByYou" not in str(e):
+        if "BucketAlreadyOwnedByYou" not in str(e) and "BucketAlreadyExists" not in str(e):
             raise
 
 ensure_resources()
@@ -60,10 +59,10 @@ def create_list():
         weather = data.get("weather", "mild")
         with_kids = data.get("with_kids", False)
         with_pet = data.get("with_pet", False)
-        list_id = data.get("id", f"{destination}_{duration}")
+        list_id = data.get("id") or f"{destination.lower()}_{duration}_{os.urandom(4).hex()}"
 
         if not destination:
-            return {"error": "Missing 'destination'"}, 400
+            return jsonify({"error": "Missing 'destination'"}), 400
 
         packing_list = suggest_items(destination, duration, weather, with_kids, with_pet)
 
@@ -80,7 +79,7 @@ def create_list():
         # Save to S3
         s3.put_object(
             Bucket=BUCKET_NAME,
-            Key=f"{list_id}.json",
+            Key=list_id,
             Body=json.dumps(packing_list),
             ContentType="application/json"
         )
@@ -96,12 +95,19 @@ def get_list(list_id):
     try:
         item = table.get_item(Key={"id": list_id}).get("Item")
         if not item:
-            return {"error": "List not found"}, 404
+            return jsonify({"error": "List not found"}), 404
 
-        s3_obj = s3.get_object(Bucket=BUCKET_NAME, Key=f"{list_id}.json")
+        s3_obj = s3.get_object(Bucket=BUCKET_NAME, Key=list_id)
         packing_list = json.loads(s3_obj["Body"].read())
 
-        return jsonify({"id": list_id, "details": item, "items": packing_list}), 200
+        response_data = item
+        response_data["items"] = packing_list
+        return jsonify(response_data), 200
+    
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'NoSuchKey':
+            return jsonify({"error": "List found in DB but not in S3", "id": list_id}), 404
+        return jsonify({"error": "Failed to retrieve list", "details": str(e)}), 500
     except Exception as e:
         return jsonify({"error": "Failed to retrieve list", "details": str(e)}), 500
 
@@ -110,18 +116,17 @@ def get_list(list_id):
 def update_list(list_id):
     try:
         data = request.get_json()
-
-        update_fields = {k: v for k, v in data.items() if k != "id"}
+        if not data:
+            return jsonify({"error": "Invalid JSON payload"}), 400
         item_exists = table.get_item(Key={"id": list_id}).get("Item")
         if not item_exists:
             return jsonify({"error": f"List with ID {list_id} not found"}), 404
 
-        dynamo_fields = {k: v for k, v in update_fields.items() if k != "items"}
+        dynamo_fields = {k: v for k, v in data.items() if k != "items"}
 
         if dynamo_fields:
             update_expr = "SET " + ", ".join(f"{k}=:{k}" for k in dynamo_fields)
-            serializer = TypeSerializer()
-            expr_values = {f":{k}": serializer.serialize(v) for k, v in dynamo_fields.items()}
+            expr_values = {f":{k}": v for k, v in dynamo_fields.items()}
 
             table.update_item(
                 Key={"id": list_id},
@@ -129,16 +134,15 @@ def update_list(list_id):
                 ExpressionAttributeValues=expr_values
             )
 
-        if "items" in update_fields:
+        if "items" in data:
             s3.put_object(
                 Bucket=BUCKET_NAME,
-                Key=f"{list_id}.json",
-                Body=json.dumps(update_fields["items"]),
+                Key=list_id,
+                Body=json.dumps(data["items"]),
                 ContentType= "application/json"
             )
-        return {"message": f"List {list_id} updated successfully"}, 200
-    except ClientError as e:
-        return jsonify({"error": "Failed to update list due to a client error", "details": str(e)}), 500
+        return jsonify({"message": f"List {list_id} updated successfully"}), 200
+    
     except Exception as e:
         return jsonify({"error": "Failed to update list", "details": str(e)}), 500
 
@@ -147,7 +151,7 @@ def update_list(list_id):
 def delete_list(list_id):
     try:
         table.delete_item(Key={"id": list_id})
-        s3.delete_object(Bucket=BUCKET_NAME, Key=f"{list_id}.json")
+        s3.delete_object(Bucket=BUCKET_NAME, Key=list_id)
         return {"message": f"List {list_id} deleted successfully"}, 200
     except Exception as e:
         return jsonify({"error": "Failed to delete list", "details": str(e)}), 500
