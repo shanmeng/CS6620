@@ -24,8 +24,8 @@ s3 = boto3.client(
     endpoint_url=os.getenv("S3_ENDPOINT", "http://localstack:4566")
 )
 
-TABLE_NAME = "PackingLists"
-BUCKET_NAME = "packing-lists-bucket"
+TABLE_NAME = "PackMyBagTable"
+BUCKET_NAME = "packmyback-bucket"
 
 # Ensure resources exist
 def ensure_resources():
