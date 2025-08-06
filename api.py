@@ -81,7 +81,7 @@ def create_list():
         s3.put_object(
             Bucket=BUCKET_NAME,
             Key=f"{list_id}.json",
-            Body=json.dumps(packing_list)
+            Body=json.dumps(packing_list),
             ContentType="application/json"
         )
 
