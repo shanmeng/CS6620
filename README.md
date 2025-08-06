@@ -11,10 +11,17 @@ This project is a RESTful API designed to generate and manage travel packing lis
 - Trip duration
 - Traveling with kids and/or pets
 
-
 ## Features
 - Fully RESTful: Supports "GET", "POST", "PUT", "DELETE".
 - It now integrates with DynamoDB for storing data and S3 for archiving list contents.
+- API endpoints
+| Method | Endpoint                   | Description                      |
+|--------|----------------------------|----------------------------------|
+| POST   | `/lists`                   | Generate and save a packing list |
+| GET    | `/lists/<list_id>`         | Retrieve a saved list            |
+| PUT    | `/lists/<list_id>`         | Update an existing list          |
+| DELETE | `/lists/<list_id>`         | Delete a saved list              |
+| GET    | `/lists`                   | List all saved list IDs          |
 
 ## Project structures
 ```
@@ -66,7 +73,7 @@ bash
 ```
 The script uses docker-compose.yml to build and start the container.
 
-5. Running the Test.
+5. Running the Test. Keep your current terminal running. Open a new terminal window and run the Test in the new window.
 ```
 bash
 
@@ -74,15 +81,13 @@ bash
 ```
 The script uses docker-compose.test.yml to build a clean test environment, run all tests, and then automatically shut down the containers.
 
-6. API endpoints
-| Method | Endpoint                   | Description                      |
-|--------|----------------------------|----------------------------------|
-| POST   | `/lists`                   | Generate and save a packing list |
-| GET    | `/lists/<list_id>`         | Retrieve a saved list            |
-| PUT    | `/lists/<list_id>`         | Update an existing list          |
-| DELETE | `/lists/<list_id>`         | Delete a saved list              |
-| GET    | `/lists`                   | List all saved list IDs          |
-
+6. You can test the endpoint with curl in the new terminal window.
+```
+bash
+curl -X POST http://localhost:5050/lists \
+  -H "Content-Type: application/json" \
+  -d '{"destination":"paris","duration":3,"weather":"cold","with_kids":true,"with_pet":false}'
+```
 
 ## CI/CD with GitHub Actions
 This repo includes an automated Github Actions workflow at
@@ -96,15 +101,6 @@ Every push to `main` will:
 - Run the full test suite against Localstack mock AWS environment.
 Test results are viewable under the Actions tab on the repository page.
 
-## Example: POST a JSON to the API
-```
-bash
-
-curl -X POST http://localhost:5050/lists \
-  -H "Content-Type: application/json" \
-  -d '{"destination": "paris", "duration": 5, "weather": "cold"}'
-```
-This sends a POST request with JSON data to the Flask API.
 
 ## Requirements
 All dependencies are defined in requirements.txt and included in Docker containers.
@@ -114,11 +110,12 @@ All dependencies are defined in requirements.txt and included in Docker containe
 ## AI Assistance / External Tools Used
 This project utilized AI assistance for debugging and clarifying concepts.
 
-Tool used: Google Gemini, GitHub "Explain Error" feature.
+Tool used: Google Gemini, GitHub Copilot.
 
 Prompts:
 - "Can you help troubleshoot LocalStack errors?"
 - "How can I wait for LocalStack to become healthy in a Docker Compose test container?"
 - "How to fix 'ERROR: for test Container '...'' in Docker Compose with LocalStack health checks?"
+- "Please find a solution for this failing job. Use the logs, job definition, and any referenced files where the failure occurred. Keep your response focused on the solution and include code suggestions when appropriate."
 
 All AI-generated responses were reviewed and modified by me.
