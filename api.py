@@ -9,6 +9,7 @@ import boto3
 import json
 import os
 from botocore.exceptions import ClientError
+from boto3.dynamodb.types import TypeSerializer
 
 app = Flask(__name__)
 
@@ -116,7 +117,7 @@ def update_list(list_id):
 
         non_s3_fields = {k: v for k, v in update_fields.items() if k!= "items"}
         if non_s3_fields:
-            update_expr = "SET " + ", ".join(f"{k}=:{k}" for k in non_s3_fields
+            update_expr = "SET " + ", ".join(f"{k}=:{k}" for k in non_s3_fields)
             serializer = TypeSerializer()
             expr_values = {f":{k}": serializer.serialize(v) for k, v in non_s3_fields.items()}
 
