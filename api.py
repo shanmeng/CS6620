@@ -25,7 +25,7 @@ s3 = boto3.client(
 )
 
 TABLE_NAME = "PackMyBagTable"
-BUCKET_NAME = "packmyback-bucket"
+BUCKET_NAME = "packmybag-bucket"
 
 # Ensure resources exist
 def ensure_resources():
@@ -110,6 +110,10 @@ def update_list(list_id):
         data = request.get_json()
 
         update_fields = {k: v for k, v in data.items() if k != "id"}
+        item_exists = table.get_item(Key={"id": list_id}).get("Item")
+        if not item_exists:
+            return jsonify({"error": f"List with ID {list_id} not found"}), 404
+        
         update_expr = "SET " + ", ".join(f"{k}=:{k}" for k in update_fields)
         expr_values = {f":{k}": v for k, v in update_fields.items()}
 
@@ -125,8 +129,9 @@ def update_list(list_id):
                 Key=f"{list_id}.json",
                 Body=json.dumps(data["items"])
             )
-
         return {"message": f"List {list_id} updated successfully"}, 200
+    except ClientError as e:
+        return jsonify({"error": "Failed to update list due to a client error", "details": str(e)}), 500
     except Exception as e:
         return jsonify({"error": "Failed to update list", "details": str(e)}), 500
 
