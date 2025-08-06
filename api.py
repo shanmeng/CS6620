@@ -133,7 +133,7 @@ def update_list(list_id):
             s3.put_object(
                 Bucket=BUCKET_NAME,
                 Key=f"{list_id}.json",
-                Body=json.dumps(update_fields["items"])
+                Body=json.dumps(update_fields["items"]),
                 ContentType= "application/json"
             )
         return {"message": f"List {list_id} updated successfully"}, 200
