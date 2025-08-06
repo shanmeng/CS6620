@@ -3,8 +3,8 @@ import time
 import requests
 import sys
 
-endpoint = os.getenv(\"DYNAMODB_ENDPOINT\", \"http://localstack:4566\")
-print(f\"Waiting for LocalStack DynamoDB and S3 at {endpoint}...\")
+endpoint = os.getenv("DYNAMODB_ENDPOINT", "http://localstack:4566")
+print("Waiting for LocalStack DynamoDB and S3 at {endpoint}...")
         
 max_attempts = 40 # 40 * 5s = 200s wait
 attempts = 0
