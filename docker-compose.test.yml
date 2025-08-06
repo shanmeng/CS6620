@@ -1,4 +1,4 @@
-version: '3.8'
+# version: '3.8'
 
 services:
   localstack:
@@ -27,11 +27,11 @@ services:
       localstack:
         condition: service_healthy
     environment:
-      - AWS_ACCESS_KEY_ID = test
-      - AWS_SECRET_ACCESS_KEY = test
-      - AWS_DEFAULT_REGION = us-east-1
-      - DYNAMODB_ENDPOINT = http://localstack:4566
-      - DYNAMOBD_TABLE = PackMyBagTable
-      - S3_BUCKET = packmybag-bucket
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=us-east-1
+      - DYNAMODB_ENDPOINT=http://localstack:4566
+      - DYNAMOBD_TABLE=PackMyBagTable
+      - S3_BUCKET=packmybag-bucket
     entrypoint: >
       /bin/bash -c "python wait_for_localstack.py && pytest test_api.py"
