@@ -54,10 +54,11 @@ def test_post_and_get_list(client):
     list_id = data["id"]
     
     db_item = get_dynamodb_item(list_id)
-    s3_content = get_s3_object_content(list_id)
     assert db_item is not None
-    assert s3_content is not None
     assert db_item["destination"] == "paris"
+
+    s3_content = get_s3_object_content(list_id)
+    assert s3_content is not None, f"S3 object was not found"
     assert "kids" in s3_content
 
     get_response = client.get(f"/lists/{list_id}")
