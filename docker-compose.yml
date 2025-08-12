@@ -7,30 +7,9 @@ services:
       dockerfile: Dockerfile.api
     ports:
       - "5050:5050"
+    env_file:
+      - .env.aws
     environment:
-      - AWS_ACCESS_KEY_ID=test
-      - AWS_SECRET_ACCESS_KEY=test
-      - AWS_DEFAULT_REGION=us-east-1
-      - DYNAMODB_ENDPOINT=http://localstack:4566
-      - S3_ENDPOINT=http://localstack:4566
-      - DYNAMODB_TABLE=PackMyBagTable
-      - S3_BUCKET=packmybag-bucket
-    depends_on:
-      - localstack
-    volumes:
-      - .:/app
-
-  localstack:
-    image: localstack/localstack
-    ports:
-      - "4567:4566"
-    environment:
-      - SERVICES=dynamodb,s3
-      - DEFAULT_REGION=us-east-1
-    
-    # Updated after TA's feedback: Using a named volume to let Docker manage the localstack_data volume internally.
-    volumes:
-      - localstack_data:/var/lib/localstack
-
-volumes:
-  localstack_data:
+      AWS_REGION: us-east-1
+      DYNAMODB_TABLE: packing_lists
+      S3_BUCKET: packmybag-artifacts-20250814
