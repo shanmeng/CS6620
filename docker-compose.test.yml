@@ -1,37 +1,17 @@
-# version: '3.8'
+version: '3.8'
 
 services:
-  localstack:
-    image: localstack/localstack:latest
-    ports:
-      - "4567:4566"
-    environment:
-      - SERVICES=s3,dynamodb
-      - DEFAULT_REGION=us-east-1
-      - DOCKER_HOST_ADDRESS=localstack
-      - DEBUG=1
-    volumes:
-      - "./.localstack:/var/lib/localstack"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health?services=s3,dynamodb"]
-      interval: 15s
-      start_period: 60s
-      timeout: 15s
-      retries: 20
-
-  test:
+  app:
     build:
       context: .
-      dockerfile: Dockerfile.test
-    depends_on:
-      localstack:
-        condition: service_healthy
+      dockerfile: Dockerfile.api
+    # CI won't read the local .env file
     environment:
-      - AWS_ACCESS_KEY_ID=test
-      - AWS_SECRET_ACCESS_KEY=test
-      - AWS_DEFAULT_REGION=us-east-1
-      - DYNAMODB_ENDPOINT=http://localstack:4566
-      - DYNAMOBD_TABLE=PackMyBagTable
-      - S3_BUCKET=packmybag-bucket
-    entrypoint: >
-      /bin/bash -c "python wait_for_localstack.py && pytest test_api.py"
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION}
+      DYNAMODB_TABLE: ${DYNAMODB_TABLE}
+      S3_BUCKET: ${S3_BUCKET}
+    # Test in container, then quit
+    command: >
+      sh -c "python -m pytest -v --disable-warnings --maxfail=1 tests/"
