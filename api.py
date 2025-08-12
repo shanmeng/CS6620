@@ -1,7 +1,7 @@
 # Name: Shan Meng
-# Date: July 25, 2025
+# Date: August 11, 2025
 # Class: CS6620
-# Notes: Assignment CI/CD pipeline part 3
+# Notes: Final Project
 
 from flask import Flask, request, jsonify
 from PackMyBag import suggest_items
@@ -12,48 +12,22 @@ from botocore.exceptions import ClientError
 
 app = Flask(__name__)
 
-# AWS LocalStack configurations
-dynamodb = boto3.resource(
-    "dynamodb",
-    region_name="us-east-1",
-    endpoint_url=os.getenv("DYNAMODB_ENDPOINT", "http://localstack:4566")
-)
-s3 = boto3.client(
-    "s3",
-    region_name="us-east-1",
-    endpoint_url=os.getenv("S3_ENDPOINT", "http://localstack:4566")
-)
+# AWS config from environment
+AWS_REGION   = os.getenv("AWS_REGION", "us-east-1")
+TABLE_NAME   = os.getenv("DYNAMODB_TABLE", "packing_lists")
+BUCKET_NAME  = os.getenv("S3_BUCKET")
 
-TABLE_NAME = "PackMyBagTable"
-BUCKET_NAME = "packmybag-bucket"
+# AWS clients
+dynamodb = boto3.resource("dynamodb", region_name=AWS_REGION)
+table    = dynamodb.Table(TABLE_NAME)
+s3       = boto3.client("s3", region_name=AWS_REGION)
 
-# Ensure resources exist
-def ensure_resources():
-    try:
-        dynamodb.create_table(
-            TableName=TABLE_NAME,
-            KeySchema=[{"AttributeName": "id", "KeyType": "HASH"}],
-            AttributeDefinitions=[{"AttributeName": "id", "AttributeType": "S"}],
-            ProvisionedThroughput={"ReadCapacityUnits": 5, "WriteCapacityUnits": 5}
-        )
-    except ClientError as e:
-        if "ResourceInUseException" not in str(e):
-            raise
-
-    try:
-        s3.create_bucket(Bucket=BUCKET_NAME)
-    except ClientError as e:
-        if "BucketAlreadyOwnedByYou" not in str(e) and "BucketAlreadyExists" not in str(e):
-            raise
-
-ensure_resources()
-table = dynamodb.Table(TABLE_NAME)
 
 # POST method
 @app.route("/lists", methods=["POST"])
 def create_list():
     try:
-        data = request.get_json()
+        data = request.get_json() or {}
         destination = data.get("destination")
         duration = int(data.get("duration", 1))
         weather = data.get("weather", "mild")
