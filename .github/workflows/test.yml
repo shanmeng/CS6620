@@ -21,6 +21,8 @@ jobs:
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_wrapper: false
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -40,11 +42,8 @@ jobs:
     - name: Get Terraform Outputs
       id: tf_outputs
       run: |
-        # CORRECTED FORMAT: Ensure no other text is mixed with the output command
-        DDB_TABLE_NAME=$(terraform output -raw ddb_table)
-        S3_BUCKET_NAME=$(terraform output -raw s3_bucket)
-        echo "ddb_table=$DDB_TABLE_NAME" >> $GITHUB_OUTPUT
-        echo "s3_bucket=$S3_BUCKET_NAME" >> $GITHUB_OUTPUT
+        echo "ddb_table=$(terraform output -raw ddb_table)" >> $GITHUB_OUTPUT
+        echo "s3_bucket=$(terraform output -raw s3_bucket)" >> $GITHUB_OUTPUT
       working-directory: ${{ env.TF_DIR }}
       
     - name: Run Application Integration Tests
