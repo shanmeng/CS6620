@@ -13,14 +13,14 @@ from botocore.exceptions import ClientError
 app = Flask(__name__)
 
 # AWS config from environment
-AWS_REGION   = os.getenv("AWS_REGION", "us-east-1")
-TABLE_NAME   = os.getenv("DYNAMODB_TABLE", "packing_lists")
-BUCKET_NAME  = os.getenv("S3_BUCKET")
+AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
+TABLE_NAME = os.getenv("DYNAMODB_TABLE", "packing_lists")
+BUCKET_NAME = os.getenv("S3_BUCKET")
 
 # AWS clients
 dynamodb = boto3.resource("dynamodb", region_name=AWS_REGION)
-table    = dynamodb.Table(TABLE_NAME)
-s3       = boto3.client("s3", region_name=AWS_REGION)
+table = dynamodb.Table(TABLE_NAME)
+s3 = boto3.client("s3", region_name=AWS_REGION)
 
 
 # POST method
