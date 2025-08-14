@@ -1,9 +1,9 @@
 name: CI/CD Pipeline for PackMyBag
 
 on:
+  push:
+    branches: [ "main" ]
   workflow_dispatch:
-  # push:           
-  #   branches: [ "main" ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -12,12 +12,11 @@ concurrency:
 jobs:
   test-on-aws:
     runs-on: ubuntu-latest
-
     env:
       TF_DIR: ./Iac
 
     steps:
-    - name: Checkout code
+    - name: Checkout Code
       uses: actions/checkout@v4
 
     - name: Setup Terraform
@@ -31,24 +30,28 @@ jobs:
         aws-region: ${{ secrets.AWS_REGION }}
 
     - name: Terraform Init
-      run: terraform init -input=false
+      run: terraform init
       working-directory: ${{ env.TF_DIR }}
 
     - name: Terraform Apply
-      run: terraform apply -auto-approve -input=false
+      run: terraform apply -auto-approve
       working-directory: ${{ env.TF_DIR }}
 
     - name: Get Terraform Outputs
       id: tf_outputs
       run: |
-        echo "ddb_table=$(terraform output -raw ddb_table)" >> $GITHUB_OUTPUT
-        echo "s3_bucket=$(terraform output -raw s3_bucket)" >> $GITHUB_OUTPUT
+        # CORRECTED FORMAT: Ensure no other text is mixed with the output command
+        DDB_TABLE_NAME=$(terraform output -raw ddb_table)
+        S3_BUCKET_NAME=$(terraform output -raw s3_bucket)
+        echo "ddb_table=$DDB_TABLE_NAME" >> $GITHUB_OUTPUT
+        echo "s3_bucket=$S3_BUCKET_NAME" >> $GITHUB_OUTPUT
       working-directory: ${{ env.TF_DIR }}
       
     - name: Run Application Integration Tests
       run: |
-        echo "Starting application tests on AWS resources..."
+        echo "Starting application tests..."
         
+        # Pass secrets and Terraform outputs to Docker Compose
         export DYNAMODB_TABLE=${{ steps.tf_outputs.outputs.ddb_table }}
         export S3_BUCKET=${{ steps.tf_outputs.outputs.s3_bucket }}
         export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -60,5 +63,5 @@ jobs:
         
     - name: Terraform Destroy
       if: always()
-      run: terraform destroy -auto-approve -input=false
+      run: terraform destroy -auto-approve
       working-directory: ${{ env.TF_DIR }}
