@@ -11,14 +11,38 @@ import boto3
 from botocore.exceptions import ClientError
 from api import app
 
-# Use the Localstack endpoints
-DYNAMODB_ENDPOINT = os.environ.get("DYNAMODB_ENDPOINT", "http://localstack:4566")
-S3_ENDPOINT = os.environ.get("S3_ENDPOINT", "http://localstack:4566")
-TABLE_NAME = "PackMyBagTable"
-BUCKET_NAME = "packmybag-bucket"
+# Name: Shan Meng
+# Date: August 14, 2025
+# Class: CS6620
+# Notes: Final Project - Final CI/CD Version
 
-s3_client = boto3.client("s3", endpoint_url=S3_ENDPOINT, region_name="us-east-1")
-dynamodb_resource = boto3.resource("dynamodb", endpoint_url=DYNAMODB_ENDPOINT, region_name="us-east-1")
+import pytest
+import json
+import os
+import boto3
+from botocore.exceptions import ClientError
+from api import app # Your Flask app
+
+# Connect to REAL AWS in CI/CD
+DYNAMODB_ENDPOINT = os.getenv("DYNAMODB_ENDPOINT") 
+S3_ENDPOINT = os.getenv("S3_ENDPOINT")
+AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
+
+# Get resource names from variables set by the CI workflow or docker-compose
+TABLE_NAME = os.getenv("DYNAMODB_TABLE", "PackMyBagTable")
+BUCKET_NAME = os.getenv("S3_BUCKET", "packmybag-bucket")
+
+# Initialize boto3 clients. When endpoint_url is None, it connects to real AWS.
+s3_client = boto3.client(
+    "s3", 
+    region_name=AWS_REGION,
+    endpoint_url=S3_ENDPOINT
+)
+dynamodb_resource = boto3.resource(
+    "dynamodb", 
+    region_name=AWS_REGION,
+    endpoint_url=DYNAMODB_ENDPOINT
+)
 dynamodb_table = dynamodb_resource.Table(TABLE_NAME)
 
 # Pytest fixture to create a test client for the Flask app
@@ -29,6 +53,7 @@ def client():
         yield client
 
 def get_dynamodb_item(item_id):
+    """Helper function to get an item from DynamoDB."""
     try:
         response = dynamodb_table.get_item(Key={"id": item_id})
         return response.get("Item")
@@ -36,8 +61,8 @@ def get_dynamodb_item(item_id):
         print(f"Error getting item {item_id} from DynamoDB: {e}")
         return None
 
-# Helper function to retrieve object content from S3
 def get_s3_object_content(item_id):
+    """Helper function to retrieve and parse object content from S3."""
     try:
         response = s3_client.get_object(Bucket=BUCKET_NAME, Key=item_id)
         content = response["Body"].read().decode("utf-8")
@@ -46,7 +71,6 @@ def get_s3_object_content(item_id):
         if e.response['Error']['Code'] == 'NoSuchKey':
             return None
         raise
-
 
 # Test POST and check DynamoDB + S3
 def test_post_and_get_list(client):
@@ -127,7 +151,7 @@ def test_put_update_existing(client):
 
     assert updated_item is not None
     assert updated_s3 is not None
-    assert updated_item["duration"] == 5
+    assert int(updated_item["duration"]) == 5
     assert updated_item["weather"] == "sunny"
     assert updated_s3 == update_payload["items"]
 
