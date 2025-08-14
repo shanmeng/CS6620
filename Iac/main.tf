@@ -13,6 +13,7 @@ provider "aws" {
 # S3
 resource "aws_s3_bucket" "artifacts" {
   bucket = "packmybag-artifacts-20250814"
+  force_destroy = true
   tags = {
     Project = "PackMyBag"
     Env = "prod"
