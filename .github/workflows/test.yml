@@ -2,16 +2,19 @@ name: CI/CD Pipeline for PackMyBag
 
 on:
   workflow_dispatch:
+  # push:           
+  #   branches: [ "main" ]
 
-permissions:
-  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test-on-aws:
     runs-on: ubuntu-latest
 
     env:
-      TF_DIR: Iac
+      TF_DIR: ./Iac
 
     steps:
     - name: Checkout code
@@ -19,51 +22,43 @@ jobs:
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
-      with:
-        terraform_version: 1.6.0
 
     - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v2
+      uses: aws-actions/configure-aws-credentials@v4
       with:
-        aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region:            us-east-1
+        aws-region: ${{ secrets.AWS_REGION }}
 
     - name: Terraform Init
-      working-directory: ${{ env.TF_DIR }}
       run: terraform init -input=false
+      working-directory: ${{ env.TF_DIR }}
 
     - name: Terraform Apply
-      working-directory: ${{ env.TF_DIR }}
       run: terraform apply -auto-approve -input=false
-
-    - name: Capture Terraform outputs
-      id: tfout
       working-directory: ${{ env.TF_DIR }}
+
+    - name: Get Terraform Outputs
+      id: tf_outputs
       run: |
-        echo "ddb_table=$(terraform output -raw ddb_table)"   >> $GITHUB_OUTPUT
-        echo "s3_bucket=$(terraform output -raw s3_bucket)"   >> $GITHUB_OUTPUT
-
-    - name: Smoke test against real AWS
+        echo "ddb_table=$(terraform output -raw ddb_table)" >> $GITHUB_OUTPUT
+        echo "s3_bucket=$(terraform output -raw s3_bucket)" >> $GITHUB_OUTPUT
+      working-directory: ${{ env.TF_DIR }}
+      
+    - name: Run Application Integration Tests
       run: |
-        set -e
-        echo "Table:  ${{ steps.tfout.outputs.ddb_table }}"
-        echo "Bucket: ${{ steps.tfout.outputs.s3_bucket }}"
-
-        # DynamoDB:
-        aws dynamodb describe-table --table-name "${{ steps.tfout.outputs.ddb_table }}"
-
-        # S3:
-        aws s3 ls "s3://${{ steps.tfout.outputs.s3_bucket }}/" || true
-        echo 'smoke' > /tmp/smoke.txt
-        aws s3 cp /tmp/smoke.txt "s3://${{ steps.tfout.outputs.s3_bucket }}/ci-smoke.txt"
-        aws s3 cp "s3://${{ steps.tfout.outputs.s3_bucket }}/ci-smoke.txt" /tmp/smoke2.txt
-        diff /tmp/smoke.txt /tmp/smoke2.txt
-
+        echo "Starting application tests on AWS resources..."
+        
+        export DYNAMODB_TABLE=${{ steps.tf_outputs.outputs.ddb_table }}
+        export S3_BUCKET=${{ steps.tf_outputs.outputs.s3_bucket }}
+        export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+        export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        export AWS_REGION=${{ secrets.AWS_REGION }}
+        
+        chmod +x ./test.sh
+        ./test.sh
+        
     - name: Terraform Destroy
       if: always()
-      working-directory: ${{ env.TF_DIR }}
       run: terraform destroy -auto-approve -input=false
-
-
-
+      working-directory: ${{ env.TF_DIR }}
