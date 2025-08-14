@@ -1,11 +1,10 @@
 version: '3.8'
 
 services:
-  app:
+  test:
     build:
       context: .
-      dockerfile: Dockerfile.api
-    # CI won't read the local .env file
+      dockerfile: Dockerfile.test
     environment:
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
@@ -14,4 +13,4 @@ services:
       S3_BUCKET: ${S3_BUCKET}
     # Test in container, then quit
     command: >
-      sh -c "python -m pytest -v --disable-warnings --maxfail=1 tests/"
+      sh -c "python -m pytest -v --disable-warnings test_api.py"
