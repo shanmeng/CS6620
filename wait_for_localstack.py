@@ -30,3 +30,4 @@ while attempts < max_attempts:
 
 print("LocalStack services did not become healthy in time after multiple attempts. Exiting.")
 sys.exit(1)
+
