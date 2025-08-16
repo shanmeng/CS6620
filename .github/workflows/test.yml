@@ -64,3 +64,4 @@ jobs:
       if: always()
       run: terraform destroy -auto-approve
       working-directory: ${{ env.TF_DIR }}
+
