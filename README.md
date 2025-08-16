@@ -62,7 +62,8 @@ To ensure the local AWS CLI is configured with the necessary credentials, run.
 bash
 
 aws configure
-"Enter" to confirm your AWS Access Key ID, Secret Access Key, and region name. 
+```
+Click Enter to confirm your AWS Access Key ID, Secret Access Key, and region name. 
 ```
 bash
 AWS Access Key ID [********************]: 
