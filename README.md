@@ -1,7 +1,7 @@
 Name: Shan Meng
-Date: July 25, 2025
+Date: August 15, 2025
 Class: CS6620, Summer
-Notes: Updated, CI/CD Pipeline Part 3
+Notes: Final Project
 
 
 
@@ -42,7 +42,7 @@ pack-my-bag-api/
 ```
 
 ## Set up and how to use
-1. Clone the Repository.
+1. Clone the repository.
 ```
 bash
 
@@ -56,55 +56,66 @@ bash
 cd CS6620
 ```
 
-3. Make the shell script executable.
-This one-time step is required on macOS and Linux to give your system permission to run the scripts.
+3. Configure AWS credentials.
+To ensure the local AWS CLI is configured with the necessary credentials, run.
 ```
 bash
 
-chmod +x ./run.sh
-chmod +x ./test.sh
+aws configure
+"Enter" to confirm your AWS Access Key ID, Secret Access Key, and region name. 
+```
+bash
+AWS Access Key ID [********************]: 
+AWS Secret Access Key [********************]: 
+Default region name [us-east-1]: 
+Default output format [None]: 
 ```
 
-4. Running the Application.
+4. Create the cloud infrastructure.
 ```
 bash
 
-./run.sh
+cd Iac
+terraform init
+terraform apply
+cd ..
 ```
-The script uses docker-compose.yml to build and start the container.
 
-5. Running the Test. Keep your current terminal running. Open a new terminal window and run the Test in the new window.
+5. Run the local application.
+Export AWS credentials for Docker Compose:
 ```
 bash
 
-./test.sh
+export AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id)
+export AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key)
+export AWS_REGION="us-east-1"
 ```
-The script uses docker-compose.test.yml to build a clean test environment, run all tests, and then automatically shut down the containers.
-
-6. You can test the endpoint with curl in the new terminal window.
-```
-bash
-curl -X POST http://localhost:5050/lists \
-  -H "Content-Type: application/json" \
-  -d '{"destination":"paris","duration":3,"weather":"cold","with_kids":true,"with_pet":false}'
-```
-
-## CI/CD with GitHub Actions
-This repo includes an automated Github Actions workflow at
+Export the resource names created by Terraform:
 ```
 bash
 
-.github/workflows/test.yml
+export DYNAMODB_TABLE=$(terraform -chdir=Iac output -raw ddb_table)
+export S3_BUCKET=$(terraform -chdir=Iac output -raw s3_bucket)
 ```
-Every push to `main` will:
-- Build the stack with Docker Compose, ensuring LocalStack services are ready.
-- Run the full test suite against Localstack mock AWS environment.
-Test results are viewable under the Actions tab on the repository page.
+Start the application:
+```
+bash
+
+docker compose up --build
+```
+
+6. Now the API is running at http://localhost:5050/lists.
+
+7. Clean up infrastructure.
+```
+bash
+
+terraform -chdir=Iac destroy
+```
 
 
 ## Requirements
 All dependencies are defined in requirements.txt and included in Docker containers.
-
 
 
 ## AI Assistance / External Tools Used
