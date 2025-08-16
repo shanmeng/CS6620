@@ -21,7 +21,7 @@ import json
 import os
 import boto3
 from botocore.exceptions import ClientError
-from api import app # Your Flask app
+from api import app
 
 # Connect to REAL AWS in CI/CD
 DYNAMODB_ENDPOINT = os.getenv("DYNAMODB_ENDPOINT") 
