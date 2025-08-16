@@ -13,3 +13,4 @@ services:
       AWS_REGION: us-east-1
       DYNAMODB_TABLE: packing_lists
       S3_BUCKET: packmybag-artifacts-20250814
+
