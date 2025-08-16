@@ -14,3 +14,4 @@ services:
     # Test in container, then quit
     command: >
       sh -c "python -m pytest -v --disable-warnings test_api.py"
+
