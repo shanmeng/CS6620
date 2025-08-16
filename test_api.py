@@ -1,7 +1,7 @@
 # Name: Shan Meng
-# Date: July 25, 2025
+# Date: August 14, 2025
 # Class: CS6620
-# Notes: Assignment CI/CD pipeline part 3
+# Notes: Final Project
 
 
 import pytest
