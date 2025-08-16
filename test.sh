@@ -10,3 +10,4 @@ docker compose -f docker-compose.test.yml down -v
 echo "Cleaning up leftover localstack directory..."
 fuser -k /var/lib/localstack || true
 rm -rf /var/lib/localstack || true
+
