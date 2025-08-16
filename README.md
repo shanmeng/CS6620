@@ -12,6 +12,8 @@ This project is a RESTful API designed to generate and manage travel packing lis
 - Traveling with kids and/or pets
 
 ## Features
+It features a cloud-native architecture where the backend infrastructure on AWS (S3 and DynamoDB) is fully managed by Terraform. The project includes a complete CI/CD pipeline using GitHub Actions that automatically provisions temporary cloud resources to run a full integration test suite.
+
 - Fully RESTful: Supports "GET", "POST", "PUT", "DELETE".
 - It now integrates with DynamoDB for storing data and S3 for archiving list contents.
 - API endpoints
@@ -34,10 +36,10 @@ pack-my-bag-api/
 ├── Dockerfile.test            # Docker build instructions for running tests in a container
 ├── docker-compose.yml         # Orchestrates the API, Localstack (mock AWS), etc. for development
 ├── docker-compose.test.yml    # Orchestrates everything needed for running tests
-├── wait_for_localstack.py     # Utility script to ensure application waits until the localstack container is ready
 ├── run.sh                     # Start the development stack by calling docker-compose.yml
 ├── test.sh                    # Run tests and exit with success/failure status
 ├── .github/workflows/test.yml # GitHub Actions workflow
+├── Iac/main.tf                # Terraform Infrastructure as Code files
 └── README.md                  # You're here!
 ```
 
